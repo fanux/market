@@ -124,6 +124,8 @@ impl Component for Model {
     fn view(&self) -> Html {
         html! {
             <div class="todomvc-wrapper">
+                { self.nav() }
+                { self.apps() }
                 <section class="todoapp">
                     <header class="header">
                         <h1>{ "todos" }</h1>
@@ -192,6 +194,89 @@ impl Model {
                 <li></li>
             </ul>
             */
+        }
+    }
+
+    fn nav(&self) -> Html {
+        html! {
+            <nav class="uk-navbar-container" uk-navbar={ true }>
+            <div class="uk-navbar-left">
+                <ul class="uk-navbar-nav">
+                    <li class="uk-active"><a href="#">{ "开源市场|云原生市场" }</a></li>
+                    <li>
+                        <a href="#">{ "友情链接" }</a>
+                        <div class="uk-navbar-dropdown">
+                            <ul class="uk-nav uk-navbar-dropdown-nav">
+                                <li class="uk-active"><a href="#">{ "云原生实验室" }</a></li>
+                                <li><a href="#">{ "sealos" }</a></li>
+                                <li><a href="#">{ "kuboard" }</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li><a href="#">{ "签约作者" }</a></li>
+                </ul>
+            </div>
+            <div class="uk-navbar-right">
+                <p uk-icon="icon: github; ratio: 2.3" style="margin-right:10px;"/>
+            </div>
+            </nav>
+        }
+    }
+
+    fn apps(&self) -> Html {
+        html! {
+            <ul uk-accordion={ true } class="uk-container">
+            <li class="uk-open">
+                <a class="uk-accordion-title" href="#">{ "云内核 kubernetes" }</a>
+                <div class="uk-accordion-content">
+                { self.apps_table() }
+                </div>
+            </li>
+            <li>
+                <a class="uk-accordion-title" href="#">{ "云驱动" }</a>
+                <div class="uk-accordion-content">
+                { self.apps_table() }
+                </div>
+            </li>
+            <li>
+                <a class="uk-accordion-title" href="#">{ "中间件" }</a>
+                <div class="uk-accordion-content">
+                { self.apps_table() }
+                </div>
+            </li>
+            </ul>
+        }
+    }
+
+    fn apps_table(&self) -> Html {
+        html! {
+            <table class="uk-table">
+            <thead>
+                <tr>
+                    <th>{ "名称" }</th>
+                    <th>{ "价格" }</th>
+                    <th>{"描述"}</th>
+                    <th>{"使用次数"}</th>
+                    <th>{"评分"}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{ "kubernetes离线包" }</td>
+                    <td>{"50"}</td>
+                    <td>{"一键安装kubernetes高可用集群"}</td>
+                    <td>{"2020"}</td>
+                    <td><p uk-icon="star" /><p uk-icon="star" /><p uk-icon="star" /><p uk-icon="star" /></td>
+                </tr>
+                <tr>
+                    <td>{ "ARM kubernetes离线包" }</td>
+                    <td>{"99"}</td>
+                    <td>{"ARM版 一键安装kubernetes高可用集群"}</td>
+                    <td>{"2020"}</td>
+                    <td><p uk-icon="star" /><p uk-icon="star" /><p uk-icon="star" /></td>
+                </tr>
+            </tbody>
+            </table>
         }
     }
 
