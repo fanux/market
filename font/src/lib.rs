@@ -1,7 +1,9 @@
 #![recursion_limit = "512"]
+use yew::prelude::*;
 use serde_derive::{Deserialize, Serialize};
 use yew::{html, Component, ComponentLink, Html, ShouldRender};
 use yew_router::{route::Route,service::RouteService,Switch};
+use yew::virtual_dom::VNode;
 
 pub struct Model {
     link: ComponentLink<Self>,
@@ -24,6 +26,8 @@ pub enum Msg {
 
 #[derive(Debug, Switch, Clone)]
 pub enum AppRoute {
+    #[to = "/app/{appName}"]
+    App(String),
     #[to = "/a/{anything}"]
     A(String),
     #[to = "/b/{anything}/{number}"]
@@ -54,6 +58,7 @@ impl Component for Model {
             Msg::ChangeRoute(route) => {
                 // This might be derived in the future
                 let route_string = match route {
+                    AppRoute::App(s) => format!("/app/{}", s),
                     AppRoute::A(s) => format!("/a/{}", s),
                     AppRoute::B { anything, number } => format!("/b/{}/{}", anything, number),
                     AppRoute::C => "/c".to_string(),
@@ -71,11 +76,10 @@ impl Component for Model {
 
     fn view(&self) -> Html {
         html! {
-            <div class="todomvc-wrapper">
-                { self.nav() }
-                { self.apps() }
-                <div>
+            <div>
                 <nav class="menu",>
+                    { self.nav() }
+                    <button onclick=&self.change_route(AppRoute::App("kubernetes".to_string())) > {"kubernetes"} </button>
                     <button onclick=&self.change_route(AppRoute::A("lorem".to_string())) > {"A"} </button>
                     <button onclick=&self.change_route(AppRoute::B{anything: "hello".to_string(), number: 42}) > {"B"} </button>
                     <button onclick=&self.change_route(AppRoute::C) > {"C"} </button>
@@ -83,20 +87,35 @@ impl Component for Model {
                 <div>
                 {
                     match AppRoute::switch(self.route.clone()) {
+                        Some(AppRoute::App(thing)) => self.app_info(thing),
                         Some(AppRoute::A(thing)) => VNode::from(thing.as_str()),
                         Some(AppRoute::B{anything, number}) => html!{<div> {anything} {number} </div>},
-                        Some(AppRoute::C) => VNode::from("C"),
+                        Some(AppRoute::C) => self.apps(),
                         None => VNode::from("404")
                     }
                 }
                 </div>
             </div>
+        }
+        /*
+        html! {
+            <div class="todomvc-wrapper">
+                { self.nav() }
+                { self.apps() }
             </div>
         }
+        */
     }
 }
 
 impl Model {
+    fn change_route(&self, app_route: AppRoute) -> Callback<ClickEvent> {
+        self.link.callback(move |_| {
+            let route = app_route.clone(); // TODO, I don't think I should have to clone here?
+            Msg::ChangeRoute(route)
+        })
+    }
+
     fn nav(&self) -> Html {
         html! {
             <nav class="uk-navbar-container" uk-navbar={ true }>
@@ -147,7 +166,11 @@ impl Model {
             </ul>
         }
     }
-
+    fn app_info(&self, name: String) -> Html {
+        html!{
+            <p> { name } {"商品名"} </p>
+        }
+    }
     fn apps_table(&self) -> Html {
         html! {
             <table class="uk-table">
@@ -162,7 +185,7 @@ impl Model {
             </thead>
             <tbody>
                 <tr>
-                    <td>{ "kubernetes离线包" }</td>
+                    <td onclick=&self.change_route(AppRoute::App("kubernetes离线包".to_string()))> {"kubernetes离线包"}</td>
                     <td>{"50"}</td>
                     <td>{"一键安装kubernetes高可用集群"}</td>
                     <td>{"2020"}</td>
