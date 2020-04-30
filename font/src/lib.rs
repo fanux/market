@@ -1,4 +1,6 @@
 #![recursion_limit = "512"]
+mod app_info;
+use app_info::app_info;
 use yew::prelude::*;
 use serde_derive::{Deserialize, Serialize};
 use yew::{html, Component, ComponentLink, Html, ShouldRender};
@@ -28,12 +30,8 @@ pub enum Msg {
 pub enum AppRoute {
     #[to = "/app/{appName}"]
     App(String),
-    #[to = "/a/{anything}"]
-    A(String),
-    #[to = "/b/{anything}/{number}"]
-    B { anything: String, number: u32 },
-    #[to = "/c"]
-    C,
+    #[to = ""]
+    Home,
 }
 
 impl Component for Model {
@@ -59,9 +57,7 @@ impl Component for Model {
                 // This might be derived in the future
                 let route_string = match route {
                     AppRoute::App(s) => format!("/app/{}", s),
-                    AppRoute::A(s) => format!("/a/{}", s),
-                    AppRoute::B { anything, number } => format!("/b/{}/{}", anything, number),
-                    AppRoute::C => "/c".to_string(),
+                    AppRoute::Home => "".to_string(),
                 };
                 self.route_service.set_route(&route_string, ());
                 self.route = Route {
@@ -79,18 +75,12 @@ impl Component for Model {
             <div>
                 <nav class="menu",>
                     { self.nav() }
-                    <button onclick=&self.change_route(AppRoute::App("kubernetes".to_string())) > {"kubernetes"} </button>
-                    <button onclick=&self.change_route(AppRoute::A("lorem".to_string())) > {"A"} </button>
-                    <button onclick=&self.change_route(AppRoute::B{anything: "hello".to_string(), number: 42}) > {"B"} </button>
-                    <button onclick=&self.change_route(AppRoute::C) > {"C"} </button>
                 </nav>
                 <div>
                 {
                     match AppRoute::switch(self.route.clone()) {
                         Some(AppRoute::App(thing)) => self.app_info(thing),
-                        Some(AppRoute::A(thing)) => VNode::from(thing.as_str()),
-                        Some(AppRoute::B{anything, number}) => html!{<div> {anything} {number} </div>},
-                        Some(AppRoute::C) => self.apps(),
+                        Some(AppRoute::Home) => self.apps(),
                         None => VNode::from("404")
                     }
                 }
@@ -121,7 +111,7 @@ impl Model {
             <nav class="uk-navbar-container" uk-navbar={ true }>
             <div class="uk-navbar-left">
                 <ul class="uk-navbar-nav">
-                    <li class="uk-active"><a href="#">{ "开源市场|云原生市场" }</a></li>
+                    <li class="uk-active"><a href="/">{ "开源市场|云原生市场" }</a></li>
                     <li>
                         <a href="#">{ "友情链接" }</a>
                         <div class="uk-navbar-dropdown">
@@ -167,9 +157,7 @@ impl Model {
         }
     }
     fn app_info(&self, name: String) -> Html {
-        html!{
-            <p> { name } {"商品名"} </p>
-        }
+        return app_info(name)
     }
     fn apps_table(&self) -> Html {
         html! {
