@@ -11,13 +11,15 @@ pub struct Model {
     link: ComponentLink<Self>,
     route_service: RouteService<()>,
     route: Route<()>,
+    data: Vec<Entry>,
 }
 
 #[derive(Serialize, Deserialize)]
 struct Entry {
+    name: String,
     description: String,
-    completed: bool,
-    editing: bool,
+    price: u32,
+    count: u32,
 }
 
 pub enum Msg {
@@ -42,11 +44,13 @@ impl Component for Model {
         let mut route_service: RouteService<()> = RouteService::new();
         let route = route_service.get_route();
         let callback = link.callback(Msg::RouteChanged);
+        let data = vec![Entry{name:String::from("kubernetes"), description:String::from("一键安装"), price:32, count:2021}];
         route_service.register_callback(callback);
         Model {
             link,
             route_service,
             route,
+            data,
         }
     }
 
@@ -172,22 +176,20 @@ impl Model {
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td onclick=&self.change_route(AppRoute::App("kubernetes离线包".to_string()))> {"kubernetes离线包"}</td>
-                    <td>{"50"}</td>
-                    <td>{"一键安装kubernetes高可用集群"}</td>
-                    <td>{"2020"}</td>
-                    <td><p uk-icon="star" /><p uk-icon="star" /><p uk-icon="star" /><p uk-icon="star" /></td>
-                </tr>
-                <tr>
-                    <td>{ "ARM kubernetes离线包" }</td>
-                    <td>{"99"}</td>
-                    <td>{"ARM版 一键安装kubernetes高可用集群"}</td>
-                    <td>{"2020"}</td>
-                    <td><p uk-icon="star" /><p uk-icon="star" /><p uk-icon="star" /></td>
-                </tr>
+                { for self.data.iter().map(|e| self.view_data(e)) }
             </tbody>
             </table>
+        }
+    }
+    fn view_data(&self, data: &Entry) -> Html {
+        html! {
+            <tr>
+                <td onclick=&self.change_route(AppRoute::App("kubernetes离线包".to_string()))> { &data.name }</td>
+                <td>{ &data.price }</td>
+                <td>{ &data.description }</td>
+                <td>{ &data.count }</td>
+                <td><p uk-icon="star" /><p uk-icon="star" /><p uk-icon="star" /><p uk-icon="star" /></td>
+            </tr>
         }
     }
 }
